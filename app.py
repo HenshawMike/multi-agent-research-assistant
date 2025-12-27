@@ -26,3 +26,29 @@ if st.button("Start Research") and topic:
             f.write(uploaded_file.getbuffer())
             pdf_paths.append(path)
             st.sidebar.success(f"Uploaded: {uploaded_file.name}")
+    crew= create_crew(topic, pdf_paths  if uploaded_files else None)
+
+    with st.spinner("Agents Starting Research..."):
+        result_stream= crew.kickoff(inputs={"topic": topic})
+        placeholder= st.empty()
+        full_response=""
+
+        for chunk in result_stream:
+            full_response+= chunk.content
+            placeholder.markdown(full_response + "▌")
+
+        placeholder.markdown(full_response)
+
+        if hasattr(crew.kickoff_result, "pydantic"):
+            st.success("Research Report Generated Successfully!")
+            st.json(crew.kickoff_result.pydantic.model_dump())
+
+        st.download_button("Download Raw Report",full_response, file_name="research_report.md")
+        if hasattr(crew.kickoff_result, "pydantic"):
+            st.download_button(
+                "Download JSON Report",
+                crew.kickoff_result.pydantic.model_dump_json(indent=2),
+                file_name="report.json"
+            )
+    for path in pdf_paths:
+        os.remove(path)

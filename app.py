@@ -1,7 +1,7 @@
+import os
 import streamlit as st  # pyright: ignore[reportMissingImports] 
 from crew import create_crew
 from dotenv import load_dotenv # pyright: ignore[reportMissingImports] 
-import os
 
 load_dotenv()
 

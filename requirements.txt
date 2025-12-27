@@ -1,6 +1,7 @@
 crewai
 crewai-tools
-langchain-google-genai
+langchain-openai
 streamlit
 python-dotenv
 pydantic
+litellm

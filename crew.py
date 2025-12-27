@@ -1,18 +1,23 @@
 import os
 from dotenv import load_dotenv # pyright: ignore[reportMissingImports] 
-from crewai import Agent, Task, Crew, Process # pyright: ignore[reportMissingImports]
+from crewai import LLM, Agent, Task, Crew, Process # pyright: ignore[reportMissingImports]
 from crewai_tools import SerperDevTool, PDFSearchTool # pyright: ignore[reportMissingImports]
-from langchain_google_genai import ChatGoogleGenerativeAI # pyright: ignore[reportMissingImports]
+from langchain_openai import ChatOpenAI # pyright: ignore[reportMissingImports]
 from models import ResearchReport
+
+
 
 load_dotenv()
 
-llm= ChatGoogleGenerativeAI(
-    model="google/gemma-3n-e4b-it:free",
-    apiKey= os.getenv("OPENROUTER_API_KEY"),
-    baseUrl= "https://openrouter.ai/api/v1/chat/completions",
+api_key = os.getenv("OPENROUTER_API_KEY")
+if not api_key:
+    raise ValueError("OPENROUTER_API_KEY not found in env")
+
+llm= LLM(
+    model="meta-llama/llama-3.1-405b-instruct:free",
+    api_key= api_key,
+    base_url= "https://openrouter.ai/api/v1",
     temperature=0.7,
-    maxOutputTokens= 1500,
 )
 
 search_tool= SerperDevTool() 
@@ -72,8 +77,6 @@ def create_crew(topic: str, pdf_paths: list[str] | None = None):
     return Crew(
         agents=[researcher, analyzer, writer],
         tasks=[task1, task2, task3],
-        process=Process.SEQUENTIAL,
-        verbose=2,
-        stream=True,
+        verbose=True,
     )
 

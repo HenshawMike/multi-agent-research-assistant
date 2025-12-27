@@ -1,3 +1,4 @@
 mara
 .env
-
+uploads
+__pycache__

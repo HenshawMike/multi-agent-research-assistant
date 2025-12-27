@@ -27,8 +27,8 @@ def create_crew(topic: str, pdf_paths: list[str] | None = None):
         tools=[search_tool, pdf_tool],
         llm=llm,
         verbose=True,
-        allow_delegation=False
-    )
+        allow_delegation=False,
+        )
     
 
 

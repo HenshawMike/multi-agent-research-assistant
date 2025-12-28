@@ -5,6 +5,10 @@ from crewai_tools import SerperDevTool, PDFSearchTool # pyright: ignore[reportMi
 from langchain_openai import ChatOpenAI # pyright: ignore[reportMissingImports]
 from models import ResearchReport
 
+
+
+load_dotenv()
+
 api_key = os.getenv("OPENROUTER_API_KEY")
 if not api_key:
     raise ValueError("OPENROUTER_API_KEY not found in env")
@@ -73,6 +77,7 @@ def create_crew(topic: str, pdf_paths: list[str] | None = None):
     return Crew(
         agents=[researcher, analyzer, writer],
         tasks=[task1, task2, task3],
-        verbose=True,
+        verbose=1,
+        process=Process.sequential
     )
 

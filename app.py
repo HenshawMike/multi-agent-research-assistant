@@ -45,16 +45,17 @@ if st.button("Start Research") and topic:
 
         placeholder.markdown(full_response)
 
-        if hasattr(crew.kickoff_result, "pydantic"):
-            st.success("Research Report Generated Successfully!")
-            st.json(crew.kickoff_result.pydantic.model_dump())
-
         st.download_button("Download Raw Report",full_response, file_name="research_report.md")
-        if hasattr(crew.kickoff_result, "pydantic"):
-            st.download_button(
-                "Download JSON Report",
-                crew.kickoff_result.pydantic.model_dump_json(indent=2),
-                file_name="report.json"
-            )
+
+        if crew.tasks_output:
+            final_result = crew.tasks_output[-1].exported_output
+            if hasattr(final_result, 'model_dump_json'):
+                st.success("Research Report Generated Successfully!")
+                st.json(final_result.model_dump())
+                st.download_button(
+                    "Download JSON Report",
+                    final_result.model_dump_json(indent=2),
+                    file_name="report.json"
+                )
     for path in pdf_paths:
         os.remove(path)

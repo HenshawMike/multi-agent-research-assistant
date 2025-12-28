@@ -4,4 +4,4 @@ langchain-openai
 streamlit
 python-dotenv
 pydantic
-litellm
+litellm[proxy]

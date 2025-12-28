@@ -5,16 +5,12 @@ from crewai_tools import SerperDevTool, PDFSearchTool # pyright: ignore[reportMi
 from langchain_openai import ChatOpenAI # pyright: ignore[reportMissingImports]
 from models import ResearchReport
 
-
-
-load_dotenv()
-
 api_key = os.getenv("OPENROUTER_API_KEY")
 if not api_key:
     raise ValueError("OPENROUTER_API_KEY not found in env")
 
 llm= LLM(
-    model="meta-llama/llama-3.1-405b-instruct:free",
+    model="openrouter/meta-llama/llama-3.1-405b-instruct:free",
     api_key= api_key,
     base_url= "https://openrouter.ai/api/v1",
     temperature=0.7,

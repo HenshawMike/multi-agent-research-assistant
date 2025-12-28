@@ -34,7 +34,13 @@ if st.button("Start Research") and topic:
         full_response=""
 
         for chunk in result_stream:
-            full_response+= chunk.content
+            if hasattr(chunk, "content"):
+                token= chunk.content
+            elif isinstance(chunk, (list, tuple)) and len(chunk)>0:
+                token= chunk[0]
+            else:
+                token= str(chunk)
+            full_response+= token
             placeholder.markdown(full_response + "▌")
 
         placeholder.markdown(full_response)

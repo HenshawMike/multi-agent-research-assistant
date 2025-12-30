@@ -35,42 +35,77 @@ if st.button("Start Research") and topic:
             pdf_paths.append(path)
             st.sidebar.success(f"Uploaded: {uploaded_file.name}")
     
-    # Initialize crew
+    
     crew = create_crew(topic, pdf_paths if uploaded_files else None)
 
-    # Start the research process
+    
     with st.spinner("Agents are researching..."):
-        # Initialize the display
-        placeholder = st.empty()
-        full_response = ""
+        status_container = st.status("Initializing crew...")
+
+
+
+        def callback(task_output):
+            status_container.update(
+                label=f"Task: {task_output.description[:100]}...",
+                state="running",
+                expanded=True
+            )
+            status_container.markdown(f"**Raw output so far:**\n{task_output.raw}")
+        
+        for task in crew.tasks:
+            task.callback= callback
         
         # Stream the results
         try:
-            result_stream = crew.kickoff(inputs={"topic": topic})
+            result = crew.kickoff(inputs={"topic": topic})
             
+
+
+
+            if isinstance(result, str):
+                final_report = result
+            else:
+                final_report = result.raw
+
+            status_container.update(label="Research Complete!", state="complete", expanded=False)
+            st.markdown(final_report)  
+
+
+
+            json_data = {
+                "topic": topic,
+                "report": final_report,
+                "token_usage": getattr(result, "token_usage", None)  # Optional: include usage if available
+            }
+
+            st.download_button(
+                label="📥 Download Research Report (JSON)",
+                data=json.dumps(json_data, indent=2),
+                file_name="research_report.json",
+                mime="application/json"
+            )  
             # Process the streaming response
-            for chunk in result_stream:
-                if hasattr(chunk, "content"):
-                    token = str(chunk.content)
-                elif isinstance(chunk, (list, tuple)) and len(chunk) > 0:
-                    token = str(chunk[0])
-                else:
-                    token = str(chunk)
+            #for chunk in result:
+             #   if hasattr(chunk, "content"):
+              #      token = str(chunk.content)
+               # elif isinstance(chunk, (list, tuple)) and len(chunk) > 0:
+                #    token = str(chunk[0])
+                #else:
+                 #   token = str(chunk)
                 
-                full_response += token
-                placeholder.markdown(full_response + "▌")
+                #full_response += token
+                #placeholder.markdown(full_response + "▌")
             
-            # Final display
-            placeholder.markdown(full_response)
-            st.success("✅ Research Complete!")
+            
+           # placeholder.markdown(full_response)
+          #  st.success("✅ Research Complete!")
             
             # Add download button
-            st.download_button(
-                label="📥 Download Research Report",
-                data=full_response,
-                file_name="research_report.md",
-                mime="text/markdown"
-            )
+           # st.download_button(
+            #    label="📥 Download Research Report",
+             #   data=full_response,
+              ## mime="text/markdown"
+            #)
             
         except Exception as e:
             st.error(f"An error occurred: {str(e)}")

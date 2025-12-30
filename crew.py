@@ -51,7 +51,7 @@ def create_crew(topic: str, pdf_paths: list[str] | None = None):
         backstory="Experienced technical writer with a knack for clarity and precision.",
         tools=[pdf_tool],
         llm=llm,
-        verbose=True,
+        verbose=True,       
         allow_delegation=False,
     )
 

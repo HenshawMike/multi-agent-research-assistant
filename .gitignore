@@ -2,3 +2,4 @@ mara
 .env
 uploads
 __pycache__
+.streamlit/secrets.toml

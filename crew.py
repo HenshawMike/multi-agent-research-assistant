@@ -4,12 +4,26 @@ from crewai import LLM, Agent, Task, Crew, Process # pyright: ignore[reportMissi
 from crewai_tools import SerperDevTool, PDFSearchTool # pyright: ignore[reportMissingImports]
 from langchain_openai import ChatOpenAI # pyright: ignore[reportMissingImports]
 from models import ResearchReport
+import streamlit as st
+# Get API keys from Streamlit secrets
+try:
+    # OpenRouter API Key
+    if 'openrouter' in st.secrets and 'api_key' in st.secrets['openrouter']:
+        api_key = st.secrets['openrouter']['api_key']
+    else:
+        raise ValueError("OpenRouter API key not found in Streamlit secrets")
+    
+    # Serper API Key
+    if 'serper' in st.secrets and 'api_key' in st.secrets['serper']:
+        os.environ["SERPER_API_KEY"] = st.secrets['serper']['api_key']
+    
+    # Set CrewAI telemetry preference
+    if 'crewai' in st.secrets and 'disable_telemetry' in st.secrets['crewai']:
+        os.environ["CREWAI_TELEMETRY_ENABLED"] = "false" if st.secrets['crewai']['disable_telemetry'].lower() == 'true' else "true"
 
-
-
-load_dotenv()
-
-api_key = os.getenv("OPENROUTER_API_KEY")
+except Exception as e:
+    st.error(f"Error loading API keys: {str(e)}")
+    raise
 
 
 llm= LLM(

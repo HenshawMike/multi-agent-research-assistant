@@ -1,4 +1,5 @@
 import os
+import json 
 import streamlit as st
 from crew import create_crew
 from dotenv import load_dotenv
@@ -58,30 +59,54 @@ if st.button("Start Research") and topic:
         # Stream the results
         try:
             result = crew.kickoff(inputs={"topic": topic})
-            
-
-
-
             if isinstance(result, str):
-                final_report = result
+                try:
+                    # Try to parse as JSON first
+                    json.loads(result)
+                    final_report = result
+                except json.JSONDecodeError:
+                    # If not valid JSON, wrap in a JSON object
+                    final_report = json.dumps({"content": result})
+                token_usage = None
             else:
-                final_report = result.raw
+                try:
+                    # Handle the raw result
+                    if hasattr(result, 'raw'):
+                        if isinstance(result.raw, str):
+                            try:
+                                json.loads(result.raw)  # Validate JSON
+                                final_report = result.raw
+                            except json.JSONDecodeError:
+                                final_report = json.dumps({"content": result.raw})
+                        else:
+                            final_report = json.dumps(result.raw)
+                    else:
+                        final_report = json.dumps({"content": str(result)})
+                except Exception as e:
+                    st.error(f"Error processing report: {str(e)}")
+                    final_report = json.dumps({"error": f"Error processing report: {str(e)}"})
+                
+                # Safely extract token usage if available
+                token_usage = None
+                if hasattr(result, "token_usage") and result.token_usage is not None:
+                    token_usage = {
+                        "prompt_tokens": getattr(result.token_usage, "prompt_tokens", 0),
+                        "completion_tokens": getattr(result.token_usage, "completion_tokens", 0),
+                        "total_tokens": getattr(result.token_usage, "total_tokens", 0)
+                    }
 
             status_container.update(label="Research Complete!", state="complete", expanded=False)
             st.markdown(final_report)  
 
-
-
             json_data = {
                 "topic": topic,
                 "report": final_report,
-                "token_usage": getattr(result, "token_usage", None)  # Optional: include usage if available
+                "token_usage": token_usage
             }
 
             st.download_button(
-                label="📥 Download Research Report (JSON)",
-                data=json.dumps(json_data, indent=2),
-                file_name="research_report.json",
+                label="Download Research Report (JSON)",
+                data=json.dumps(json_data, indent=2, ensure_ascii=False),
                 mime="application/json"
             )  
             # Process the streaming response

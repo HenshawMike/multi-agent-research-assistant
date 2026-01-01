@@ -10,8 +10,7 @@ from models import ResearchReport
 load_dotenv()
 
 api_key = os.getenv("OPENROUTER_API_KEY")
-if not api_key:
-    raise ValueError("OPENROUTER_API_KEY not found in env")
+
 
 llm= LLM(
     model="openrouter/meta-llama/llama-3.1-405b-instruct:free",

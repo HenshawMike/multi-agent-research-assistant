@@ -2,7 +2,8 @@
 
 A production-ready agentic AI app that researches any topic using web search + uploaded PDFs, with real-time streaming and structured JSON output.
 
-**Live Demo**: [streamlit.app link here]
+**Live Demo**: 
+https://multi-agent-research-assistant-s.streamlit.app/
 
 ## Features
 - Multi-agent collaboration (Researcher → Analyzer → Writer)

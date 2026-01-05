@@ -26,7 +26,7 @@ except Exception as e:
     raise
 
 
-llm= ChatOpenAI(
+llm= LLM(
     model="openrouter/meta-llama/llama-3.1-405b-instruct:free",
     api_key= api_key,
     base_url= "https://openrouter.ai/api/v1",
